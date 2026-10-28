@@ -55,6 +55,7 @@ make start      # start stopped containers and wait for health
 make down       # remove containers/network; preserve data
 make re         # rebuild without cache and restart; preserve data
 make test       # isolated fresh-source integration and persistence checks
+make help       # aligned command guide and terminal display options
 ```
 
 `make clean` preserves data. **`make fclean CONFIRM=DELETE` erases this stack's

@@ -268,6 +268,7 @@ in this workspace; clone/boot/reboot/hosts checks inside the VM remain required.
 
 | Make target | Behavior |
 | --- | --- |
+| `help` | Aligned command guide; automatic terminal colors (`COLOR=always`, `COLOR=never`, or `NO_COLOR=1`) |
 | default / `up` | setup, validate, build, start, wait |
 | `setup`, `config`, `build` | prepare; validate Compose; build all images |
 | `down` / `clean` | remove stack containers/network, keep data |
