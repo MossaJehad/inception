@@ -29,6 +29,8 @@ secrets/
 /logs/
 /srcs/logs/
 .cache/
+__pycache__/
+*.py[cod]
 
 # Developer-specific Compose overrides.
 compose.override.yml

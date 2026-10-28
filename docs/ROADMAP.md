@@ -1,38 +1,15 @@
-# Roadmap
+# Evaluation readiness
 
-This checklist describes planned work, with no promised delivery dates. The
-[assigned subject](../inception_subject.txt) remains the source of requirements.
+- [x] Read the complete local subject, version 5.4; preserve existing repository policies.
+- [x] Implement custom images, network, two named storages, secrets, and Make lifecycle.
+- [x] Implement automatic MariaDB and WordPress initialization with both required users.
+- [x] Implement HTTPS, FastCGI routing, access restrictions, and healthchecks.
+- [x] Implement the sole requested bonus: the static portfolio container.
+- [x] Provide user/developer instructions, architectural explanations, and defense guidance.
+- [ ] Run final evaluation on the Linux VM, including default host port 443 and VM reboot.
+- [ ] Verify the subject assigned on Intra still matches the supplied version and release rule.
+- [ ] Review every file personally and practice a small evaluation modification.
 
-## Repository preparation
-
-- [x] Keep the Makefile and required guides at the root.
-- [x] Prepare mandatory service and bonus static-site directories under `srcs/`.
-- [x] Add empty Dockerfile, Docker ignore, Compose, and environment example files.
-- [x] Ignore local secrets, environment files, keys, runtime artifacts, and editor state.
-- [x] Add community documents and GitHub contribution templates.
-
-## Mandatory implementation
-
-- [ ] Prepare the Linux VM and select permitted, explicit base image versions.
-- [ ] Define non-sensitive environment variables and local secret file mappings.
-- [ ] Implement service Dockerfiles, build-context exclusions, configuration, and tools.
-- [ ] Configure NGINX for HTTPS on port 443 with TLS 1.2 or TLS 1.3 only.
-- [ ] Configure WordPress with PHP-FPM and the subject's required user accounts.
-- [ ] Configure MariaDB and database initialization.
-- [ ] Define the dedicated network and container restart behavior.
-- [ ] Configure the two named volumes with data under `/home/mhasoneh/data`.
-- [ ] Configure local resolution for `mhasoneh.42.fr`.
-- [ ] Implement Makefile build and lifecycle targets through Compose.
-
-## Validation and operational documentation
-
-- [ ] Verify builds, startup, HTTPS, service communication, and crash recovery.
-- [ ] Verify data persistence, storage location, and backup/restore procedures.
-- [ ] Review credentials, image contents, Git contents, and runtime exposure.
-- [ ] Replace pending guide sections with tested lifecycle and management commands.
-- [ ] Review the assigned Intra subject and prepare to explain the implementation.
-
-## Bonus
-
-- [ ] Complete and validate the mandatory part first.
-- [ ] Implement and document the separate static website container without PHP.
+See [VALIDATION.md](VALIDATION.md) for the executed test matrix. The owner must
+commit/push the reviewed source before cloning it in the VM; no automatic push
+or commit is performed.

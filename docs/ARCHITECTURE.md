@@ -1,52 +1,32 @@
-# Planned architecture
-
-## Status
-
-This is an implementation plan based on the [local subject](../inception_subject.txt),
-not a description of a deployed system. All runtime configuration is pending.
-
-## Service boundaries and traffic
+# Architecture
 
 ```text
-Client
-  |
-  | HTTPS:443, mhasoneh.42.fr
-  v
-NGINX ----> WordPress / PHP-FPM ----> MariaDB
-                |                      |
-                v                      v
-        WordPress named volume   Database named volume
+Browser -- HTTPS 443 --> nginx -- FastCGI 9000 --> wordpress -- SQL 3306 --> mariadb
+                          |
+                          +-- /portfolio/ -- HTTP 8080 --> static_site
+
+wordpress_data -> wordpress:/var/www/html and nginx:/var/www/html (read only)
+mariadb_data   -> mariadb:/var/lib/mysql
 ```
 
-Each service will run in its own container, built from its own Dockerfile using
-an allowed Alpine or Debian base. NGINX will be the mandatory stack's single
-entry point, accepting TLS 1.2 or TLS 1.3 on port 443. WordPress/PHP-FPM and MariaDB
-will communicate over a dedicated Docker network without public service ports.
+All four services explicitly share the `inception` user-defined bridge network.
+No database, FPM, or bonus host port is published. Each image is built from its
+own Dockerfile using `debian:12.15-slim`, not a prebuilt application image.
 
-Container restart behavior and proper foreground processes remain to be
-configured. Host networking, legacy links, and artificial keep-alive loops are
-prohibited by the local subject.
+The two local-driver named volumes map storage beneath `/home/mhasoneh/data`.
+The driver binds host directories internally; service mount definitions remain
+Docker named volumes. No third persistent storage is needed. The portfolio is
+baked into its image; certificates live in the NGINX container layer.
 
-## Persistent storage
+Compose grants MariaDB its root/database secret files and WordPress its database
+and account secret files. NGINX and the portfolio receive no passwords. Protected
+runtime copies let PHP read its database secret without weakening host-file modes.
+Initialization is idempotent and dependency health gates initial startup.
 
-Two named Docker volumes will persist WordPress files and the database separately.
-The local subject requires their data to end up under `/home/mhasoneh/data` on the
-VM host and prohibits replacing these with bind mounts. Exact volume definitions
-and verification of their host storage remain implementation work.
+Mandatory service entrypoints replace themselves with the foreground daemon.
+Static HTTP runs under Docker tiny init to forward signals/reap children.
+`unless-stopped` applies to each service. Docker DNS and NGINX's runtime resolver
+support backend recreation. The only bonus is the static portfolio.
 
-## Configuration boundaries
-
-Non-sensitive examples will be documented in `srcs/.env.example`. Local environment
-settings will live in the ignored `srcs/.env`. Confidential values will live in
-ignored files under `secrets/`, with Docker secret mappings defined later.
-
-No secret contents will be included in Dockerfiles, public examples, image layers,
-or version-controlled documentation. The current `.dockerignore` files are empty;
-build-context exclusions must be implemented before building the services.
-
-## Bonus static website
-
-The directory at `srcs/requirements/bonus/static_site/` reserves a Dockerfile,
-configuration directory, and site content directory for a separate bonus container.
-Its serving method and routing have not been selected. The subject excludes PHP
-for this bonus. Mandatory functionality must be completed before bonus work.
+See [DEV_DOC.md](../DEV_DOC.md) for implementation and operations, and
+[VALIDATION.md](VALIDATION.md) for verification evidence and VM limitations.

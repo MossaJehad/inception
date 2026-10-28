@@ -1,52 +1,100 @@
 # User documentation
 
-## Current status
+## Available services
 
-This repository contains a directory scaffold and documentation. The services,
-startup commands, administration interface, and health checks are not implemented.
-There is currently no running application provided by this repository.
-
-## Planned services
-
-| Service | Intended role |
+| Service | Address or purpose |
 | --- | --- |
-| NGINX | HTTPS entry point using TLS 1.2 or TLS 1.3 |
-| WordPress with PHP-FPM | Website and administration interface |
-| MariaDB | Persistent WordPress database |
-| Static website | Optional bonus website, after the mandatory stack is complete |
+| WordPress | `https://mhasoneh.42.fr/` |
+| WordPress administration | `https://mhasoneh.42.fr/wp-admin/` |
+| Static portfolio | `https://mhasoneh.42.fr/portfolio/` |
+| MariaDB and PHP-FPM | Internal services; no published host ports |
+
+With the local rootless override `HTTPS_PORT=8443`, insert `:8443` after the
+hostname. Evaluation uses the default 443. Configure the domain on the browser
+machine: `/etc/hosts` maps `mhasoneh.42.fr` to `127.0.0.1` locally or the reachable
+VM IP. This requires administrator access. Use an exception for the self-signed
+development certificate on your own site, or trust its public certificate.
+Port 80 is not published; enter an explicit `https://` URL.
 
 ## Starting and stopping
 
-The Makefile and Compose file are empty. Start, stop, rebuild, and cleanup commands
-will be documented here once implemented and verified. There are no working
-lifecycle commands at this stage.
+From the repository root:
 
-## Website and administration access
+```sh
+make                 # prepare, build, start, wait for health
+make ps              # show service status
+make stop            # stop without removing containers
+make start           # start stopped containers and wait
+make restart         # restart and wait
+make down            # remove containers/network; retain data
+make                 # recreate using stored data and credentials
+```
 
-The intended website address is `https://mhasoneh.42.fr`, with WordPress
-administration at `https://mhasoneh.42.fr/wp-admin/`. These are planned addresses,
-not available endpoints. Domain resolution and TLS setup are still pending.
+`make setup` prepares configuration without Docker. `make build` builds without
+starting. `make clean` equals `make down`. `make re` rebuilds without cache and
+restarts while preserving stored data. The first build needs Internet access.
+Setup may invoke sudo to create `/home/mhasoneh/data` if your account cannot.
 
-## Credentials
+**`make fclean CONFIRM=DELETE` permanently deletes this stack's database,
+WordPress files/uploads, volume definitions, .env, and four password files.**
+Images and empty host directories remain. Back up privately first; this is not
+a troubleshooting command for valuable data.
 
-Actual credentials will be created locally by the operator under `secrets/`.
-Local environment configuration will live in `srcs/.env`. Both locations are
-ignored by Git. No credentials, default passwords, or accounts are supplied.
+## Credentials and administration
 
-The environment example is currently empty. The exact credential file names,
-account setup, permissions, and credential rotation procedure will be documented
-when the services are implemented. Never paste credentials into issues or logs.
+```sh
+make credentials
+# Explicit disclosure in your private terminal only:
+cat secrets/wp_admin_password.txt
+```
 
-## Service checks and persistent data
+Log in as `mhasoneh`. The second account, `editor42`, uses
+`secrets/wp_user_password.txt`. It can manage content but cannot administer the
+installation. No default/shared passwords exist. Normal startup does not display
+passwords. MariaDB root credentials are not needed for site use.
 
-No health checks are available yet. This guide will later describe how to inspect
-container status, review redacted logs, verify HTTPS, and check database access.
+`secrets/` is mode 700; its files are mode 600 and ignored by Git. Keep a private
+backup outside the repository. Rebuilds and restarts preserve passwords. Deleting
+a secret is not a password reset: setup refuses to replace it beside stored data.
+Restore the original secret from backup.
 
-The intended persistent database and WordPress data location is
-`/home/mhasoneh/data` on the VM host, backed by the required named Docker volumes.
-No volumes or data directories have been provisioned by this scaffold.
+WordPress administration can change an account's password in the database.
+Update its local secret file to match (bootstrap accepts 64 lowercase hexadecimal
+characters), retaining mode 600, so credential retrieval remains accurate.
+Startup never resets an existing user's password. See the developer guide for a
+coordinated rotation procedure.
 
-## Getting help
+Create a post under **Posts → Add New** and upload an image under **Media → Add
+New**. Both survive `make down` followed by `make`. The portfolio is edited in
+source and rebuilt; it has no dashboard.
 
-See [SUPPORT.md](SUPPORT.md) for questions and troubleshooting and
-[SECURITY.md](SECURITY.md) for vulnerability reporting.
+## Health and troubleshooting
+
+```sh
+make ps
+make logs             # follow logs; Ctrl-C exits the viewer
+make config           # validate Compose syntax
+```
+
+All four containers should report `healthy`. MariaDB health performs an
+authenticated query; WordPress checks PHP-FPM's FastCGI ping; NGINX checks HTTPS;
+the portfolio checks its HTTP server. Healthchecks report status. Docker's
+restart policy restarts exited processes, not merely unhealthy ones.
+
+| Symptom | Action |
+| --- | --- |
+| Cannot connect to Docker | Start the daemon; check `docker info`, context, and user access. Do not make the socket world writable. |
+| Port 443 permission denied | Rootless Docker may forbid privileged ports. Use local `HTTPS_PORT=8443`; retain 443 for VM evaluation. |
+| Port already allocated | Stop the conflicting host service or stack. |
+| Wrong website/domain missing | Fix the browser machine's hosts entry, VM address, or port forwarding. |
+| Certificate warning | Expected for self-signed TLS. Verify the domain and use an exception or trust the public certificate. |
+| Database fails readiness | Inspect MariaDB logs and restore original credentials if lost. Do not delete data. |
+| NGINX returns 502 | Check WordPress health/logs and service DNS; `make restart` retries startup. |
+| Login fails | Check URL/port and credentials. Clear old cookies after moving domains or restoring data. |
+| Data permissions fail | Use a local Linux filesystem. Let services own their data; avoid `chmod 777` and manual recursive ownership changes. |
+| Missing secret beside data | Restore the matching private backup. Setup stops to protect existing data. |
+
+Certificates survive restarts and regenerate on container recreation, so browser
+trust may need updating. Placeholder emails receive no mail; SMTP/public TLS are
+outside this project. Never publish secrets, cookies, backups, or private keys.
+See [VALIDATION.md](docs/VALIDATION.md) for executed tests and remaining limits.

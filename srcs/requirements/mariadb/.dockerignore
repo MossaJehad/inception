@@ -1,0 +1,15 @@
+**
+!Dockerfile
+!conf/
+!conf/**
+!tools/
+!tools/**
+!site/
+!site/**
+**/.gitkeep
+**/.env*
+**/secrets/**
+**/*.key
+**/*.pem
+**/*.log
+**/*~

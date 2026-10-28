@@ -1,0 +1,43 @@
+server {
+    listen 443 ssl;
+    server_name ${DOMAIN_NAME};
+    absolute_redirect off;
+    ssl_certificate /etc/nginx/tls/server.crt;
+    ssl_certificate_key /etc/nginx/tls/server.key;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5:!3DES;
+    ssl_session_tickets off;
+    root /var/www/html;
+    index index.php;
+    add_header X-Content-Type-Options nosniff always;
+    add_header X-Frame-Options SAMEORIGIN always;
+    add_header Referrer-Policy strict-origin-when-cross-origin always;
+
+    location = /healthz { access_log off; default_type text/plain; return 200 'ok\n'; }
+    location = /portfolio { return 301 /portfolio/; }
+    location /portfolio/ {
+        set $portfolio_backend static_site:8080;
+        rewrite ^/portfolio/(.*)$ /$1 break;
+        proxy_pass http://$portfolio_backend;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-Proto https;
+    }
+    location ~ /\. { deny all; }
+    location ~* ^/(wp-config\.php|xmlrpc\.php|readme\.html|license\.txt)$ { deny all; }
+    location ~* ^/wp-content/uploads/.*\.php$ { deny all; }
+    location ~* \.(sql|log|ini|bak|old|swp)$ { deny all; }
+    location / { try_files $uri $uri/ /index.php?$args; }
+    location ~ \.php$ {
+        try_files $uri =404;
+        include /etc/nginx/fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_param HTTPS on;
+        fastcgi_param HTTP_HOST ${PUBLIC_HOST};
+        fastcgi_param SERVER_PORT ${HTTPS_PORT};
+        fastcgi_param HTTP_X_FORWARDED_PROTO https;
+        fastcgi_param HTTP_PROXY '';
+        set $php_backend wordpress:9000;
+        fastcgi_pass $php_backend;
+        fastcgi_hide_header X-Powered-By;
+    }
+}

@@ -3,11 +3,11 @@
 ## Supported state
 
 There are no released or supported production versions. This educational project
-currently contains a directory scaffold and documentation; runtime security has
-not been implemented or reviewed.
+implements a locally tested Docker stack. Runtime controls and audit results
+are described in [VALIDATION.md](docs/VALIDATION.md); VM validation is pending.
 
-Security reports concerning repository content, accidental disclosure, and future
-service configuration are welcome. No response or remediation deadline is promised.
+Security reports concerning repository content, accidental disclosure, and service
+configuration are welcome. No response or remediation deadline is promised.
 
 ## Reporting a vulnerability
 
@@ -40,7 +40,7 @@ reviewed without repeating the secret in the report.
 - Store real credentials under the ignored `secrets/` directory.
 - Keep the actual `srcs/.env` local and sanitize `.env.example`.
 - Keep private keys, generated certificates, backups, data, and logs out of Git.
-- Review file permissions and Docker build contexts during implementation.
+- Keep secret directory/file modes at 700/600 and review service build-context allowlists.
 
 See [GitHub's private reporting documentation](https://docs.github.com/en/code-security/how-tos/report-and-fix-vulnerabilities/configure-vulnerability-reporting/configure-for-a-repository)
 for the repository setting. No hosting settings have been changed by these docs.

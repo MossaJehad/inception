@@ -3,12 +3,12 @@
 ## Start here
 
 - [README](README.md): current status and project overview.
-- [User guide](USER_DOC.md): intended services and operational status.
+- [User guide](USER_DOC.md): services, access, and troubleshooting.
 - [Developer guide](DEV_DOC.md): source layout and environment preparation.
-- [Roadmap](docs/ROADMAP.md): work that remains unimplemented.
+- [Roadmap](docs/ROADMAP.md): evaluation readiness and remaining VM work.
 
-The project is currently a scaffold. Empty Dockerfiles, Compose configuration,
-environment examples, and Makefile targets are expected at this stage.
+Start with `make ps` and relevant sanitized logs. The stack initializes through
+`make`; see [the validation report](docs/VALIDATION.md) for checks and limits.
 
 ## Questions and bug reports
 

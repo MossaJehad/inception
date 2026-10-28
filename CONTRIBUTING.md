@@ -5,8 +5,8 @@ Read the [code of conduct](CODE_OF_CONDUCT.md) before participating.
 
 ## Project scope
 
-The repository currently contains a directory scaffold and documentation only.
-Discuss substantial runtime changes before implementing them. Mandatory subject
+The repository implements a Docker stack with a static portfolio bonus.
+Keep changes focused and update the validation report. Mandatory subject
 requirements take priority over bonus features; community documents do not change
 the assignment requirements.
 
@@ -38,10 +38,9 @@ data. Provide sanitized examples instead of real credentials.
 
 ## Validation
 
-Documentation-only changes need accurate links and descriptions. No test suite
-or CI pipeline is configured yet; do not claim checks that were not run.
-When runtime code is added, include the relevant build, configuration, service,
-security, and persistence checks in its pull request.
+Documentation-only changes need accurate links and descriptions. Run `make test` for the isolated runtime acceptance suite when changing service
+behavior. No hosted CI pipeline is configured. Include relevant build, service,
+security, and persistence evidence in pull requests; never claim unexecuted checks.
 
 Review the diff and new files before submitting. `.gitignore` cannot remove a
 secret already present in Git history. If a secret was exposed, revoke or rotate
