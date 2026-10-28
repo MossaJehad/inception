@@ -1,0 +1,51 @@
+# Credentials: keep all secrets directories local, including their contents.
+secrets/
+
+# Local environment files and variants; only the sanitized example is public.
+.env
+.env.*
+!.env.example
+
+# Private keys and locally generated certificates.
+*.key
+*.pem
+*.p12
+*.pfx
+*.jks
+*.keystore
+*.csr
+*.crt
+*.cer
+
+# Local runtime data, database exports, and backups belong outside source control.
+# SQL source files are intentionally allowed; put private dumps in backups/.
+/data/
+/srcs/data/
+/backups/
+/srcs/backups/
+
+# Runtime logs and local caches.
+*.log
+/logs/
+/srcs/logs/
+.cache/
+
+# Developer-specific Compose overrides.
+compose.override.yml
+compose.override.yaml
+docker-compose.override.yml
+docker-compose.override.yaml
+
+# Editor state and temporary files.
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+*.tmp
+
+# Operating system metadata.
+.DS_Store
+._*
+Thumbs.db
+Desktop.ini
